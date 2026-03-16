@@ -1,0 +1,96 @@
+<app-sidebar></app-sidebar>
+<app-navbar title="Product Management"></app-navbar>
+
+<main class="main-content">
+  <!-- Alerts -->
+  <div class="alert alert-success" *ngIf="successMsg">✅ {{ successMsg }}</div>
+  <div class="alert alert-danger" *ngIf="errorMsg">❌ {{ errorMsg }}</div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="search-bar">
+      <input type="text" [(ngModel)]="search" (keyup.enter)="onSearch()"
+        placeholder="🔍 Search products..." class="search-input">
+      <button (click)="onSearch()" class="btn-search">Search</button>
+    </div>
+    <div class="filter-bar">
+      <select [(ngModel)]="selectedCategory" (change)="onCategoryChange()" class="filter-select">
+        <option value="">All Categories</option>
+        <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+      </select>
+    </div>
+    <a routerLink="/products/add" class="btn-add">+ Add Product</a>
+  </div>
+
+  <!-- Table -->
+  <div class="card">
+    <div class="table-meta">
+      <span>Showing {{ products.length }} of {{ total }} products</span>
+    </div>
+
+    <div class="loading-spinner" *ngIf="loading">Loading products...</div>
+
+    <table class="data-table" *ngIf="!loading">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Product Name</th>
+          <th>Category</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of products">
+          <td class="id-col">{{ p.productId }}</td>
+          <td>
+            <div class="product-cell">
+              <strong>{{ p.productName }}</strong>
+              <small *ngIf="p.description">{{ p.description | slice:0:40 }}...</small>
+            </div>
+          </td>
+          <td><span class="badge category">{{ p.category }}</span></td>
+          <td class="price">₹{{ p.price | number:'1.2-2' }}</td>
+          <td class="qty">{{ p.quantity }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStockClass(p.quantity)">
+              {{ getStockLabel(p.quantity) }}
+            </span>
+          </td>
+          <td class="actions">
+            <a [routerLink]="['/products/edit', p.productId]" class="btn-action edit">Edit</a>
+            <button *ngIf="authService.isAdmin()" (click)="confirmDelete(p.productId)"
+              class="btn-action delete">Delete</button>
+          </td>
+        </tr>
+        <tr *ngIf="products.length === 0">
+          <td colspan="7" class="empty-row">No products found.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button (click)="goToPage(page - 1)" [disabled]="page === 1">‹ Prev</button>
+      <button *ngFor="let p of getPages()" (click)="goToPage(p)"
+        [class.active]="p === page">{{ p }}</button>
+      <button (click)="goToPage(page + 1)" [disabled]="page === totalPages">Next ›</button>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div class="modal-overlay" *ngIf="deleteId" (click)="cancelDelete()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h3>Confirm Delete</h3>
+      <p>Are you sure you want to delete this product? This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button (click)="cancelDelete()" class="btn-cancel">Cancel</button>
+        <button (click)="doDelete()" class="btn-confirm-delete" [disabled]="deleteLoading">
+          {{ deleteLoading ? 'Deleting...' : 'Delete' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</main>

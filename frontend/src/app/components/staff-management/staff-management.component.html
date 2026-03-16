@@ -1,0 +1,93 @@
+<app-sidebar></app-sidebar>
+<app-navbar title="Staff Management"></app-navbar>
+
+<main class="main-content">
+  <div class="alert alert-success" *ngIf="successMsg">✅ {{ successMsg }}</div>
+  <div class="alert alert-danger" *ngIf="errorMsg">❌ {{ errorMsg }}</div>
+
+  <div class="toolbar">
+    <h3>Staff Members ({{ staffList.length }})</h3>
+    <button (click)="showForm = !showForm" class="btn-add">
+      {{ showForm ? '✕ Cancel' : '+ Add Staff' }}
+    </button>
+  </div>
+
+  <!-- Add Staff Form -->
+  <div class="form-card" *ngIf="showForm">
+    <h4>Add New Staff Member</h4>
+    <form [formGroup]="form" (ngSubmit)="onAddStaff()">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" formControlName="fullName" class="form-control" placeholder="John Doe"
+            [class.is-invalid]="isInvalid('fullName')">
+          <div class="invalid-feedback" *ngIf="isInvalid('fullName')">Name is required.</div>
+        </div>
+        <div class="form-group">
+          <label>Email *</label>
+          <input type="email" formControlName="email" class="form-control" placeholder="staff@example.com"
+            [class.is-invalid]="isInvalid('email')">
+          <div class="invalid-feedback" *ngIf="isInvalid('email')">Valid email is required.</div>
+        </div>
+        <div class="form-group">
+          <label>Password *</label>
+          <input type="password" formControlName="password" class="form-control"
+            [class.is-invalid]="isInvalid('password')">
+          <div class="invalid-feedback" *ngIf="isInvalid('password')">Password must be at least 6 characters.</div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-submit" [disabled]="submitLoading || form.invalid">
+          {{ submitLoading ? 'Adding...' : 'Add Staff' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Staff Table -->
+  <div class="card">
+    <div class="loading-spinner" *ngIf="loading">Loading staff...</div>
+    <table class="data-table" *ngIf="!loading">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Joined</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of staffList">
+          <td>
+            <div class="staff-cell">
+              <div class="avatar">{{ s.fullName.charAt(0) }}</div>
+              <strong>{{ s.fullName }}</strong>
+            </div>
+          </td>
+          <td>{{ s.email }}</td>
+          <td><span class="badge staff">{{ s.role }}</span></td>
+          <td>{{ s.createdAt | date:'mediumDate' }}</td>
+          <td>
+            <button (click)="confirmDelete(s.id)" class="btn-delete">Remove</button>
+          </td>
+        </tr>
+        <tr *ngIf="staffList.length === 0">
+          <td colspan="5" class="empty-row">No staff members found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Delete Confirm Modal -->
+  <div class="modal-overlay" *ngIf="deleteId" (click)="deleteId = null">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h3>Remove Staff Member?</h3>
+      <p>This action cannot be undone. The staff member will lose all access.</p>
+      <div class="modal-actions">
+        <button (click)="deleteId = null" class="btn-cancel">Cancel</button>
+        <button (click)="doDelete()" class="btn-confirm-delete">Remove</button>
+      </div>
+    </div>
+  </div>
+</main>

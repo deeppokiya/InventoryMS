@@ -1,0 +1,50 @@
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-logo">📦</span>
+    <span class="sidebar-title">Inventory MS</span>
+  </div>
+
+  <div class="user-info">
+    <div class="user-avatar">{{ authService.getCurrentUser()?.fullName?.charAt(0) }}</div>
+    <div>
+      <div class="user-name">{{ authService.getCurrentUser()?.fullName }}</div>
+      <div class="user-role badge" [class.admin]="authService.isAdmin()">
+        {{ authService.getCurrentUser()?.role }}
+      </div>
+    </div>
+  </div>
+
+  <ul class="nav-list">
+    <li>
+      <a routerLink="/dashboard" routerLinkActive="active">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+    </li>
+    <li>
+      <a routerLink="/products" routerLinkActive="active">
+        <span class="nav-icon">📋</span> Products
+      </a>
+    </li>
+    <li>
+      <a routerLink="/products/add" routerLinkActive="active">
+        <span class="nav-icon">➕</span> Add Product
+      </a>
+    </li>
+    <li *ngIf="authService.isAdmin()">
+      <a routerLink="/staff" routerLinkActive="active">
+        <span class="nav-icon">👥</span> Staff Management
+      </a>
+    </li>
+    <li *ngIf="authService.isAdmin()">
+      <a routerLink="/reports" routerLinkActive="active">
+        <span class="nav-icon">📊</span> Reports
+      </a>
+    </li>
+  </ul>
+
+  <div class="sidebar-footer">
+    <button class="btn-logout" (click)="logout()">
+      <span>🚪</span> Logout
+    </button>
+  </div>
+</nav>

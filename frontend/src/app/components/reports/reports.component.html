@@ -1,0 +1,88 @@
+<app-sidebar></app-sidebar>
+<app-navbar title="Inventory Reports"></app-navbar>
+
+<main class="main-content">
+
+  <!-- Summary -->
+  <div class="stats-grid" *ngIf="summary">
+    <div class="stat-card blue">
+      <div class="stat-icon">📦</div>
+      <div><div class="stat-value">{{ summary.totalProducts }}</div><div class="stat-label">Total Products</div></div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-icon">🏷️</div>
+      <div><div class="stat-value">{{ summary.totalStock | number }}</div><div class="stat-label">Total Units</div></div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-icon">💰</div>
+      <div><div class="stat-value">₹{{ summary.totalInventoryValue | number:'1.0-0' }}</div><div class="stat-label">Total Value</div></div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="stat-icon">⚠️</div>
+      <div><div class="stat-value">{{ summary.lowStockCount }}</div><div class="stat-label">Low Stock</div></div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-icon">❌</div>
+      <div><div class="stat-value">{{ summary.outOfStockCount }}</div><div class="stat-label">Out of Stock</div></div>
+    </div>
+  </div>
+
+  <div class="reports-grid">
+    <!-- Low Stock Report -->
+    <div class="card">
+      <div class="card-header">
+        <h3>⚠️ Low Stock Report</h3>
+        <div class="threshold-control">
+          <label>Threshold: </label>
+          <input type="number" [(ngModel)]="lowStockThreshold" (change)="onThresholdChange()"
+            min="1" max="100" class="threshold-input">
+        </div>
+      </div>
+      <div class="loading-spinner" *ngIf="loading">Loading...</div>
+      <div class="empty-state" *ngIf="!loading && lowStockProducts.length === 0">
+        ✅ All products above threshold of {{ lowStockThreshold }}
+      </div>
+      <table class="data-table" *ngIf="!loading && lowStockProducts.length > 0">
+        <thead>
+          <tr><th>Product</th><th>Category</th><th>Qty</th><th>Price</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of lowStockProducts">
+            <td><strong>{{ p.productName }}</strong></td>
+            <td><span class="badge category">{{ p.category }}</span></td>
+            <td>
+              <span class="qty-badge" [class.danger]="p.quantity === 0">
+                {{ p.quantity === 0 ? 'OUT' : p.quantity }}
+              </span>
+            </td>
+            <td>₹{{ p.price | number:'1.2-2' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Category Stats -->
+    <div class="card">
+      <div class="card-header">
+        <h3>📊 Products by Category</h3>
+      </div>
+      <div class="category-bars">
+        <div class="bar-item" *ngFor="let s of categoryStats">
+          <div class="bar-label">
+            <span>{{ s.category }}</span>
+            <span class="bar-count">{{ s.productCount }} products</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" [style.width]="getBarWidth(s.productCount)"></div>
+          </div>
+          <div class="bar-meta">
+            <span>{{ s.totalQuantity | number }} units</span>
+            <span>₹{{ s.totalValue | number:'1.0-0' }}</span>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="categoryStats.length === 0">No data available.</div>
+      </div>
+    </div>
+  </div>
+
+</main>

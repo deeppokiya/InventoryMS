@@ -1,0 +1,112 @@
+<app-sidebar></app-sidebar>
+<app-navbar title="Dashboard"></app-navbar>
+
+<main class="main-content">
+  <div class="welcome-banner">
+    <div>
+      <h2>Welcome back, {{ authService.getCurrentUser()?.fullName }}! 👋</h2>
+      <p>Here's what's happening in your inventory today.</p>
+    </div>
+    <a routerLink="/products/add" class="btn-primary">+ Add Product</a>
+  </div>
+
+  <!-- Summary Cards (Admin only) -->
+  <div class="stats-grid" *ngIf="authService.isAdmin() && summary">
+    <div class="stat-card blue">
+      <div class="stat-icon">📦</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ summary.totalProducts }}</div>
+        <div class="stat-label">Total Products</div>
+      </div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-icon">🏷️</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ summary.totalStock | number }}</div>
+        <div class="stat-label">Total Stock Units</div>
+      </div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="stat-icon">⚠️</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ summary.lowStockCount }}</div>
+        <div class="stat-label">Low Stock Items</div>
+      </div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-icon">❌</div>
+      <div class="stat-info">
+        <div class="stat-value">{{ summary.outOfStockCount }}</div>
+        <div class="stat-label">Out of Stock</div>
+      </div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-icon">💰</div>
+      <div class="stat-info">
+        <div class="stat-value">₹{{ summary.totalInventoryValue | number:'1.0-0' }}</div>
+        <div class="stat-label">Inventory Value</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-grid">
+    <!-- Recent Products -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Recent Products</h3>
+        <a routerLink="/products" class="view-all">View All →</a>
+      </div>
+      <div class="loading-spinner" *ngIf="loading">Loading...</div>
+      <table class="data-table" *ngIf="!loading">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Qty</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of recentProducts">
+            <td><strong>{{ p.productName }}</strong></td>
+            <td><span class="badge category">{{ p.category }}</span></td>
+            <td>₹{{ p.price | number:'1.2-2' }}</td>
+            <td>{{ p.quantity }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="{
+                'out': p.quantity === 0,
+                'low': p.quantity > 0 && p.quantity <= 10,
+                'ok': p.quantity > 10
+              }">
+                {{ p.quantity === 0 ? 'Out of Stock' : p.quantity <= 10 ? 'Low Stock' : 'In Stock' }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Low Stock (Admin only) -->
+    <div class="card" *ngIf="authService.isAdmin()">
+      <div class="card-header">
+        <h3>⚠️ Low Stock Alerts</h3>
+        <a routerLink="/reports" class="view-all">Full Report →</a>
+      </div>
+      <div *ngIf="lowStockProducts.length === 0" class="empty-state">
+        <p>✅ All products are well stocked!</p>
+      </div>
+      <div class="low-stock-list" *ngIf="lowStockProducts.length > 0">
+        <div class="low-stock-item" *ngFor="let p of lowStockProducts">
+          <div>
+            <div class="product-name">{{ p.productName }}</div>
+            <div class="product-cat">{{ p.category }}</div>
+          </div>
+          <div class="qty-badge" [class.danger]="p.quantity === 0">
+            {{ p.quantity === 0 ? 'OUT' : p.quantity + ' left' }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
