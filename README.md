@@ -22,8 +22,8 @@ docker-compose up --build
 ### Default Credentials
 | Role  | Email                  | Password    |
 |-------|------------------------|-------------|
-| Admin | admin@inventory.com    | Admin@123!  |
-| Staff | staff@inventory.com    | Staff@123!  |
+| Admin | admin@gmail.com    | Admin@123  |
+| Staff | staff@gmail.com    | Staff@123  |
 
 ---
 
